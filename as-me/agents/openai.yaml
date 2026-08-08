@@ -1,0 +1,6 @@
+interface:
+  display_name: "As Me"
+  short_description: "Draft anything in the configured personal voice"
+  default_prompt: "Use $as-me to draft this message in my voice."
+policy:
+  allow_implicit_invocation: true

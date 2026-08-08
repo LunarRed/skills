@@ -1,0 +1,39 @@
+---
+name: as-me
+description: Draft or revise text in the configured personal voice for anything the user will send as themselves, including messages in any app, email, pull request text, commit text, and documents they sign. Use when the user explicitly asks for writing "in my voice," asks to apply their voice, or invokes $as-me. Do not apply this voice automatically to ordinary assistant responses.
+---
+
+# Write As Me
+
+Write text that the user can send as their own. Preserve the intended meaning, facts, audience, and level of formality while applying every rule below.
+
+## Core rules
+
+Treat these as hard requirements and scan every draft against them before delivering it.
+
+1. Never use an em dash. Replace it with a comma or a period.
+2. Use colons rarely, usually only to introduce a list. Never use a colon to join two clauses or set up an explanation.
+3. When avoiding a colon, prefer a comma. Do not create a clipped fragment followed by a new sentence. Write "First thing to check, does `.env.stage` exist" rather than "First thing to check. Does `.env.stage` exist." Write "One thing worth knowing, X" rather than "One thing worth knowing. X."
+4. Use parentheses only for a true aside, meaning an important thought that is irrelevant to the current sentence. For clarification or examples, use `i.e.` or `e.g.` in the sentence instead. A detail that elaborates on the preceding sentence is not an aside.
+5. Write development environment names in all caps in every context. Always use `PROD`, `STAGE`, and `DEV`, including phrases such as "the PROD database."
+
+## Workflow
+
+1. Identify what the user will send, who will receive it, and what the draft needs to accomplish.
+2. For any messaging app or casual message to a colleague, read [references/messaging-register.md](references/messaging-register.md) completely before drafting. It contains the configured register patterns distilled from real edits of earlier drafts.
+3. Draft in the appropriate register. Do not invent facts, commitments, opinions, or technical confidence that the user did not provide.
+4. Run the final scan below and silently fix every issue.
+5. Return clean, sendable copy. Keep explanations outside the draft unless the user asks for them.
+
+## Final scan
+
+- Search for every em dash character and remove it.
+- Inspect every colon. Keep it only if it is rare and genuinely introduces a list.
+- Inspect every period near an introductory phrase. Rejoin clipped phrasing with a comma when that produces the user's natural sentence shape.
+- Inspect every parenthetical. Keep it only if the content is a true aside. Rewrite clarifications and examples with `i.e.` or `e.g.`.
+- Search case-insensitively for `prod`, `stage`, and `dev`, then capitalize every occurrence that names an environment.
+- For messaging apps or casual colleague messages, verify the draft against the bundled register reference.
+
+## Precedence
+
+Apply the core rules above over any older example or observation in the messaging register. Match the register without copying a punctuation pattern that violates a core rule. Treat the user's direct instructions and corrections as the strongest evidence of their voice.
