@@ -16,6 +16,15 @@ Drafts and revises anything I will send as myself, including messages in any app
 
 The skill includes a platform-neutral messaging register built from my edits of earlier drafts. It loads that reference only for messaging apps and other casual colleague messages. The wording is anonymous and portable, but the configured voice and outcomes remain mine.
 
+### [`have-opus-build`](./have-opus-build)
+
+Builds an agreed change through Opus 5 subagents that Fable directs, reviews, and supervises, so my Fable allowance goes to judgment instead of keystrokes. I do the analysis and planning with Fable in normal conversation, then invoke this at the build moment.
+
+- Claude Code invocation, `/have-opus-build`
+- Automatic invocation, never. This one is mine to trigger.
+
+If the change is not yet agreed, the skill makes Fable confirm its scope before any subagent runs. The workflow needs a harness where Fable dispatches Opus 5 subagents through the Agent tool, i.e. Claude Code and T3 code. Codex has no Opus subagents, so this skill is deliberately not linked into `~/.agents/skills`.
+
 ### [`wait-what`](./wait-what)
 
 Stops an agent that has lost me and makes it re-pitch, with a little context, in ASD-STE100 Simplified Technical English, using the project's own vocabulary.
@@ -50,6 +59,14 @@ for skill in as-me wait-what; do
 done
 ```
 
+Link the Claude-only skills directly into the Claude Code directory, skipping `~/.agents/skills` so Codex never discovers them:
+
+```bash
+for skill in have-opus-build; do
+  ln -s "$HOME/GitHub/LunarRed/skills/$skill" "$HOME/.claude/skills/$skill"
+done
+```
+
 Codex discovers the skill through `~/.agents/skills`. Claude Code discovers it through `~/.claude/skills`. Both use the same files in this repository, so every edit has one source of truth.
 
 Start a new agent session if a newly linked skill does not appear immediately.
@@ -65,6 +82,8 @@ skills/
 │   │   └── openai.yaml
 │   └── references/
 │       └── messaging-register.md
+├── have-opus-build/
+│   └── SKILL.md
 ├── wait-what/
 │   ├── SKILL.md
 │   └── agents/
@@ -79,6 +98,12 @@ Every skill has a `SKILL.md` entry point with its name, triggering description, 
 Edit [`as-me/SKILL.md`](./as-me/SKILL.md) to change universal writing rules. Edit [`as-me/references/messaging-register.md`](./as-me/references/messaging-register.md) to preserve personal wording, structure, and register patterns learned from real message edits.
 
 Keep messaging-app formatting out of the register unless it came from a direct instruction or screenshot. Copied messages can lose or transform whitespace, markup, quotes, and inline code.
+
+## Customize `have-opus-build`
+
+Edit [`have-opus-build/SKILL.md`](./have-opus-build/SKILL.md) to change the builder model, the dispatch rules, or how much rework Fable may apply directly during review. The builder model appears in exactly one line, the `model: "opus"` dispatch instruction, so pointing the skill at a future model is a one-line change.
+
+Keep `disable-model-invocation: true` in the frontmatter. This workflow spawns paid subagents, so it should only ever start when I type it.
 
 ## Customize `wait-what`
 
