@@ -10,7 +10,7 @@ The core punctuation rules in `SKILL.md` take precedence over every observation 
 
 1. Open with a conversational orienting line such as "Okay, here's what I figured out" only when the user is reporting their own multi-part findings. Plain status replies get no opener and start at the verdict, e.g. "PR #230 is good, and I merged it."
 
-2. End a topic with the user's next action and what the recipient should expect, e.g. "Let me know when it's rebased, and I'll merge it." Attach the closer to the end of its topic's paragraph rather than automatically putting it at the end of the whole message. When a thread is fully wrapping, a short upbeat close with a real emoji can fit, e.g. "Everything else looks good! 😎"
+2. End a topic with the user's next action and what the recipient should expect, e.g. "Let me know when it's rebased, and I'll merge it." Attach the closer to the end of its topic's paragraph rather than automatically putting it at the end of the whole message. When a thread is fully wrapping, a short upbeat close with a real emoji can fit, e.g. "Everything else looks good! 😎" When the message puts a proposal to the recipient, close with a binary that offers both outcomes, e.g. "Does that work or am I missing anything?" rather than only inviting correction with "Anything I'm missing there?"
 
 3. Use first-person active sentences when the user owns an action, e.g. "I restored," "I decided the best fix was," "I'm using X to do Y," "I also handled," and "I added." Avoid subjectless fragments such as "Pushed on a branch" and tool-as-agent phrasing such as "git does the matching now."
 
@@ -20,7 +20,7 @@ The core punctuation rules in `SKILL.md` take precedence over every observation 
 
 6. For instructions to a colleague, give a literal click path and exact text or commands. Use quoted UI labels. Because parentheses are reserved for true asides, integrate navigation details directly into the sentence with commas or `i.e.` where clarification is needed.
 
-7. Format almost everything code-shaped as inline code, including commands, flags, file names, patterns, error names, version numbers, and branch names. Examples include `node_modules`, `npm ci`, `eslint`, `22.x`, and `25.8.1`. A classifier noun often helps, e.g. "the `node_modules` directory." Named systems and UI labels can take quotation marks. Use real emoji characters rather than shortcodes.
+7. Format almost everything code-shaped as inline code, including commands, flags, file names, patterns, error names, version numbers, and branch names. Examples include `node_modules`, `npm ci`, `eslint`, `22.x`, and `25.8.1`. A classifier noun often helps, e.g. "the `node_modules` directory." Named systems and UI labels can take quotation marks. Quotation marks also go around a term borrowed from the recipient's own document and around a term the message is defining, e.g. the "stand-down" rule, what counts as a "human touching the case." Use real emoji characters rather than shortcodes.
 
 8. Cut verification evidence, scratch work, instructions the recipient already followed, and open items that are unrelated to the current thread's action. Prefer what a technical detail means for the recipient over the underlying implementation history. Instructions usually do not need an explanation unless the recipient is likely to push back without it.
 
@@ -42,11 +42,19 @@ The core punctuation rules in `SKILL.md` take precedence over every observation 
 
 17. Do not write blame lines or validation lines. Avoid phrases such as "that's my fault," "that's the right instinct," and "good call." State the cause neutrally and move to the fix. Keep positivity about the state of things, e.g. "Everything else looks good," rather than praising the person.
 
-18. Shape short replies as one paragraph with no line breaks. Put approval first as its own short sentence, e.g. "Yeah, go ahead." Follow with complete imperatives, e.g. "Push the branch, and open the PR." Use "Also," to connect the next topic. Put the handoff on the recipient, e.g. "Let me know when your PR is up, and I'll review and merge it."
+18. Shape short replies as one paragraph with no line breaks. Put approval first as its own short sentence, e.g. "Yeah, go ahead." Follow with complete imperatives, e.g. "Push the branch, and open the PR." Use "Also," to connect the next topic. Put the handoff on the recipient, e.g. "Let me know when your PR is up, and I'll review and merge it." The same one-paragraph shape applies to the closing section of a longer message. Merge trailing short paragraphs into one, joining with "So" to carry on the current topic and "Also," to start the next.
 
 19. Write pull request references as plain text in the form "PR #230," not as inline code. Fuse a verdict and action when natural, e.g. "PR #230 is good, and I merged it."
 
 20. Expand compressed idioms into plain, concrete words, e.g. "and that will fix that issue" rather than "and that clears." Skip enumerator preambles such as "Two more things" when "Also," can start the next topic. Give a memorable concrete example inline with `e.g.` when an abstract category needs one. Use "since" for causal joins. Add a qualifier such as "unrelated" when the recipient might misread the scope.
+
+21. Frame a request as work in progress rather than a stated requirement. Describe what the user is doing, e.g. "I'm trying to narrow the list of what counts as X" rather than "I need the specific list of what counts as X," and "I'm thinking the rule should be" rather than "I'm reading it as." This applies even when the user genuinely does need the answer.
+
+22. State a risk as a purpose clause rather than a consequence clause. Write "so a case manager adding a note doesn't silently stop billing a client" rather than "otherwise a case manager adding a note could silently stop billing that client for good." Drop intensifiers while doing it, e.g. "a client" rather than "that client for good." The point is what the rule is protecting, not how bad the failure would be.
+
+23. Introduce a list with a word plus a colon rather than a bare colon, e.g. "anything a person does that affects payment like:" rather than ending the lead-in at "payment:."
+
+24. Keep a phrasal verb intact and attach the object after it, e.g. "switch off AutoPay for the case" rather than "switch AutoPay off on that case."
 
 ## Personalization
 
