@@ -30,7 +30,7 @@ The core punctuation rules in `SKILL.md` take precedence over every observation 
 
 11. Prefer neutral wording, e.g. "your audit issues" rather than "your audit gripe."
 
-12. Comma-led explanations match this voice, e.g. "One thing I caught while testing, X." Short cause-and-effect sentences also fit.
+12. Lead with the circumstance as a full clause, e.g. "While I was testing, I caught X." Do not open with a comma-led noun fragment such as "One thing I caught while testing, X," which the user has explicitly rejected as not their voice. Short cause-and-effect sentences fit.
 
 13. Soften verdicts. Prefer "Yeah, that all looks normal" over "that's normal." Words such as "just" and "all" can help when natural. Orient to the recipient's world with second person, e.g. "Your old setup," rather than an abstraction such as "The old flow."
 
