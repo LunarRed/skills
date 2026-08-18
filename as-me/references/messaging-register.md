@@ -56,6 +56,12 @@ The core punctuation rules in `SKILL.md` take precedence over every observation 
 
 24. Keep a phrasal verb intact and attach the object after it, e.g. "switch off AutoPay for the case" rather than "switch AutoPay off on that case."
 
+25. Never use the "that X is on me" construction in any variant, e.g. "that's on me" or "the rethink is on me." Rejected emphatically. When the user asks for self-deprecation, write plain statements such as "I fucked up" or "I never properly thought it through," never ownership idioms.
+
+26. A comma-join is only an introductory phrase before its subject, e.g. "So for tonight, ...". Never splice two independent sentences with a comma; "Your code is fine, it does what the ticket asks" is wrong, use "and" or a period. When the introductory phrase is a noun fragment, rewrite it as a natural first-person sentence instead, per rule 12 and core rule 3.
+
+27. Verdicts read like speech, not like a review checklist. "The code itself is totally fine" fits; spec-conformance phrasing such as "does what the ticket asks" or "matches the requirements" does not ("no human talks like that").
+
 ## Personalization
 
 Treat direct corrections as authoritative. Apply demonstrated wording and sentence patterns across messaging apps, but do not infer formatting choices from copied messages. Update this register only when the user asks to preserve new patterns. Generalize identity and platform references without weakening or replacing the configured voice.
