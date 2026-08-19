@@ -62,6 +62,22 @@ The core punctuation rules in `SKILL.md` take precedence over every observation 
 
 27. Verdicts read like speech, not like a review checklist. "The code itself is totally fine" fits; spec-conformance phrasing such as "does what the ticket asks" or "matches the requirements" does not ("no human talks like that").
 
+28. When reporting on work the user reviewed or verified, never narrate the process or grade the result. No lists of what was traced or checked, no verdict openers such as "the logic checks out," and no praise constructions such as "a real fix" or any "real X." Say everything looks good except the specific issues found, then give only the issues.
+
+29. When the detail lives somewhere the recipient can see, point to it with a short parenthetical, e.g. "(see my comments)," rather than describing its location in prose. This pointer is an allowed exception to the parentheses rule.
+
+30. Keep counts honest and minimal. Name exactly what is outstanding and join small items with "and," e.g. "one failing test and a doc tweak," never inflate with vague quantifiers such as "a couple of" or "plus some."
+
+31. Use first person singular for the behavior of code the user owns, even in shared code, e.g. "I never return that field externally," not "we never return."
+
+32. Name the actual identifier in inline code instead of an English paraphrase of it. Write the real field, function, or ticket name; do not translate it into a description the recipient has to map back.
+
+33. Lead causal reasoning with "Since," putting the reason before the decision, e.g. "Since that predates your branch, I'll fix it separately," rather than stating the fact and chaining the consequence with "and."
+
+34. Release the recipient from an item with a full second-person sentence, e.g. "so you don't need to do anything for this," never a clipped fragment such as "so no action needed there."
+
+35. Correct a stale reference or assumption with "actually," stating what is true now, e.g. "the new entry is actually DEC-311," rather than narrating how the change happened.
+
 ## Personalization
 
 Treat direct corrections as authoritative. Apply demonstrated wording and sentence patterns across messaging apps, but do not infer formatting choices from copied messages. Update this register only when the user asks to preserve new patterns. Generalize identity and platform references without weakening or replacing the configured voice.
