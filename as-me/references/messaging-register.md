@@ -78,6 +78,16 @@ The core punctuation rules in `SKILL.md` take precedence over every observation 
 
 35. Correct a stale reference or assumption with "actually," stating what is true now, e.g. "the new entry is actually DEC-311," rather than narrating how the change happened.
 
+36. Never write "i.e." or "e.g." outside parentheses. This overrides the older guidance to put them inline. When a clarification is needed, either put it in parentheses with "i.e."/"e.g." inside (i.e. like this), or rewrite the sentence so no abbreviation is needed. Plain rewording is preferred.
+
+37. No feature-inventory sentences shaped like "There's a [technical noun] that [does X]." Say what a person can do instead, e.g. "A rep can key in a card during a call," never "There's a staff API route that saves a card."
+
+38. No callback sentences shaped like "That's the [thing] I was worried about, and it already exists." State the correction directly in first person, e.g. "I had the TOS thing wrong."
+
+39. No triumphant discovery phrasing such as "we already solved this one" or "You and I made this exact decision." State the fact flat, e.g. "We made this call back on Aug 2."
+
+40. No topic-fronting openers shaped like "On AutoPay, the ..." and no corrective contrast constructions shaped like "X is deliberate rather than an oversight" (rejected emphatically 2026-08-27). Start from the fact in first person instead, e.g. "AutoPay has never been armed because I didn't want a freshly deployed worker charging clients."
+
 ## Personalization
 
 Treat direct corrections as authoritative. Apply demonstrated wording and sentence patterns across messaging apps, but do not infer formatting choices from copied messages. Update this register only when the user asks to preserve new patterns. Generalize identity and platform references without weakening or replacing the configured voice.
