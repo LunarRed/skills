@@ -34,6 +34,16 @@ The same workflow as `have-opus-do-it`, with OpenAI's newest Sol model as the wo
 - Claude Code invocation, `/have-sol-do-it`
 - Automatic invocation, ask the agent to have Sol do, build, or handle something
 
+### [`keep-warm`](./keep-warm)
+
+Keeps a T3 Code thread's prompt cache warm while I'm away by scheduling a minimal keepalive ping into that thread. By default it stops itself four hours after I go quiet: every ping that finds a new message from me pushes the stop time out. If I ask for a hard stop ("until 6pm", "for exactly two hours"), it ends at that time no matter what.
+
+- Codex invocation, `$keep-warm`
+- Claude Code invocation, `/keep-warm`
+- Automatic invocation, ask the agent to keep this thread warm, stop keeping it warm, or show its keepalive status
+
+It runs only inside T3 Code, because it uses T3's scheduled tasks. The ping interval comes from measured cache lifetimes: 50 minutes when Claude Code is writing the 1-hour cache, and 25 minutes for Codex on GPT-5.5 or later. T3 has to stay running and the machine awake.
+
 ### [`wait-what`](./wait-what)
 
 Stops an agent that has lost me and makes it re-pitch, with a little context, in ASD-STE100 Simplified Technical English, using the project's own vocabulary.
@@ -79,6 +89,10 @@ skills/
 │   └── SKILL.md
 ├── have-sol-do-it/
 │   └── SKILL.md
+├── keep-warm/
+│   ├── SKILL.md
+│   └── agents/
+│       └── openai.yaml
 ├── wait-what/
 │   ├── SKILL.md
 │   └── agents/

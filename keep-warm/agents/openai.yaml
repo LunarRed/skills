@@ -1,0 +1,6 @@
+interface:
+  display_name: "Keep Warm"
+  short_description: "Keep this T3 thread's prompt cache warm during a break"
+  default_prompt: "Use $keep-warm to keep this thread warm for four hours."
+policy:
+  allow_implicit_invocation: true
