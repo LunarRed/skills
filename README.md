@@ -16,14 +16,23 @@ Drafts and revises anything I will send as myself, including messages in any app
 
 The skill includes a platform-neutral messaging register built from my edits of earlier drafts. It loads that reference only for messaging apps and other casual colleague messages. The wording is anonymous and portable, but the configured voice and outcomes remain mine.
 
-### [`have-opus-build`](./have-opus-build)
+### [`have-opus-do-it`](./have-opus-do-it)
 
-Builds an agreed change through Opus 5 subagents that Fable directs, reviews, and supervises, so my Fable allowance goes to judgment instead of keystrokes. I do the analysis and planning with Fable in normal conversation, then invoke this at the build moment.
+Does an agreed task, whether a code change, research, drafting, file wrangling, or analysis, through subagents running the newest Opus model, directed, reviewed, and supervised by whichever model is running my session, so that model's token allowance goes to judgment instead of keystrokes. I do the analysis and planning in normal conversation, then invoke this at the doing moment. Subagents produce the deliverable, the session model reviews it, and irreversible actions such as committing, sending, or publishing stay with me.
 
-- Claude Code invocation, `/have-opus-build`
+If the task is not yet agreed, the skill makes the session model confirm its scope before any subagent runs. The skill never names an Opus version. It dispatches through the harness's `opus` alias, which resolves to the current Opus, so a new Opus release needs no edit here. In a harness that delegates across vendors, such as T3 Code, a non-Claude session model routes the dispatch to Claude's newest Opus.
+
+- Codex invocation, `$have-opus-do-it`
+- Claude Code invocation, `/have-opus-do-it`
 - Automatic invocation, never. This one is mine to trigger.
 
-If the change is not yet agreed, the skill makes Fable confirm its scope before any subagent runs. The workflow needs a harness where Fable dispatches Opus 5 subagents through the Agent tool, i.e. Claude Code and T3 code. Codex has no Opus subagents, so this skill is deliberately not linked into `~/.agents/skills`.
+### [`have-sol-do-it`](./have-sol-do-it)
+
+The same workflow as `have-opus-do-it`, with OpenAI's newest Sol model as the worker instead of Opus. The two files are kept as separate copies on purpose, so each can carry instructions for the quirks of its own model family. Sol is reachable from Codex and from T3 Code's cross-vendor delegation; plain Claude Code has no route to it, and the skill says so rather than substituting a model.
+
+- Codex invocation, `$have-sol-do-it`
+- Claude Code invocation, `/have-sol-do-it`
+- Automatic invocation, never. This one is mine to trigger.
 
 ### [`wait-what`](./wait-what)
 
@@ -37,37 +46,21 @@ Adapted from the `wait-what` skill in [mattpocock/skills](https://github.com/mat
 
 ## Install
 
-Clone the repository into a stable location:
+Clone this repository and the companion [`dotfiles`](https://github.com/LunarRed/dotfiles) repository side by side:
 
 ```bash
 mkdir -p "$HOME/GitHub/LunarRed"
 git clone https://github.com/LunarRed/skills.git "$HOME/GitHub/LunarRed/skills"
+git clone https://github.com/LunarRed/dotfiles.git "$HOME/GitHub/LunarRed/dotfiles"
 ```
 
-Create the personal skill directories used by Codex and Claude Code:
+The symlinks are not made by hand. Each skill has two entries in `dotfiles/mise.toml`, one for `~/.agents/skills/<skill>` and one for `~/.claude/skills/<skill>`, and `mise bootstrap dotfiles apply` creates them. The `sync-agents` script in `dotfiles/bin` pulls both repositories with `git pull --ff-only`, refreshes approved third-party skills, and runs that apply step. It refuses to run while either checkout has uncommitted changes.
 
 ```bash
-mkdir -p "$HOME/.agents/skills" "$HOME/.claude/skills"
+"$HOME/GitHub/LunarRed/dotfiles/bin/sync-agents"
 ```
 
-Link each skill into the shared Agent Skills directory, then link Claude Code to that shared entry:
-
-```bash
-for skill in as-me wait-what; do
-  ln -s "$HOME/GitHub/LunarRed/skills/$skill" "$HOME/.agents/skills/$skill"
-  ln -s "$HOME/.agents/skills/$skill" "$HOME/.claude/skills/$skill"
-done
-```
-
-Link the Claude-only skills directly into the Claude Code directory, skipping `~/.agents/skills` so Codex never discovers them:
-
-```bash
-for skill in have-opus-build; do
-  ln -s "$HOME/GitHub/LunarRed/skills/$skill" "$HOME/.claude/skills/$skill"
-done
-```
-
-Codex discovers the skill through `~/.agents/skills`. Claude Code discovers it through `~/.claude/skills`. Both use the same files in this repository, so every edit has one source of truth.
+Codex discovers a skill through `~/.agents/skills`. Claude Code discovers it through `~/.claude/skills`. Both link to the same files in this repository, so every edit has one source of truth.
 
 Start a new agent session if a newly linked skill does not appear immediately.
 
@@ -82,7 +75,9 @@ skills/
 │   │   └── openai.yaml
 │   └── references/
 │       └── messaging-register.md
-├── have-opus-build/
+├── have-opus-do-it/
+│   └── SKILL.md
+├── have-sol-do-it/
 │   └── SKILL.md
 ├── wait-what/
 │   ├── SKILL.md
@@ -99,11 +94,11 @@ Edit [`as-me/SKILL.md`](./as-me/SKILL.md) to change universal writing rules. Edi
 
 Keep messaging-app formatting out of the register unless it came from a direct instruction or screenshot. Copied messages can lose or transform whitespace, markup, quotes, and inline code.
 
-## Customize `have-opus-build`
+## Customize `have-opus-do-it` and `have-sol-do-it`
 
-Edit [`have-opus-build/SKILL.md`](./have-opus-build/SKILL.md) to change the builder model, the dispatch rules, or how much rework Fable may apply directly during review. The builder model appears in exactly one line, the `model: "opus"` dispatch instruction, so pointing the skill at a future model is a one-line change.
+Edit [`have-opus-do-it/SKILL.md`](./have-opus-do-it/SKILL.md) or [`have-sol-do-it/SKILL.md`](./have-sol-do-it/SKILL.md) to change the dispatch rules or how much rework the session model may apply directly during review. The "Choose the worker" section is where each file names its model family and carries that family's quirks. The rest of the two files is meant to stay identical, so a change to the shared workflow goes in both.
 
-Keep `disable-model-invocation: true` in the frontmatter. This workflow spawns paid subagents, so it should only ever start when I type it.
+Keep `disable-model-invocation: true` in the frontmatter. These workflows spawn paid subagents, so they should only ever start when I type them.
 
 ## Customize `wait-what`
 
@@ -113,18 +108,18 @@ Keep `disable-model-invocation: true` in the frontmatter. The skill body is writ
 
 ## Update
 
-Pull the latest changes into the canonical checkout:
+Run `sync-agents` on each machine. On my Mac I run it by hand; on the headless server a systemd timer runs it daily. It pulls `main` of both repositories, so a change reaches a machine only after it is merged and pushed.
+
+Removing a skill needs one manual step. `mise` only creates and repairs the links it is configured for; it never deletes one. After a skill's entries leave `mise.toml`, remove its two stale links by hand on each machine:
 
 ```bash
-git -C "$HOME/GitHub/LunarRed/skills" pull
+rm "$HOME/.agents/skills/<skill>" "$HOME/.claude/skills/<skill>"
 ```
-
-The symlinks continue pointing at the updated files.
 
 ## Add another skill
 
 1. Create a new top-level directory named after the skill.
 2. Add and validate its `SKILL.md` file.
 3. Add supporting references, scripts, assets, or metadata only when the skill needs them.
-4. Link the skill into `~/.agents/skills` and `~/.claude/skills`.
-5. Add the skill to the catalog in this README.
+4. Add the skill to the catalog in this README.
+5. Add its two symlink entries to `mise.toml` in the `dotfiles` repository, merge this repository first, then `dotfiles`, and run `sync-agents`.
