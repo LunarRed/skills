@@ -1,7 +1,7 @@
 ---
 name: have-sol-do-it
-description: Do the agreed task through subagents running the newest Sol model, under the direction, review, and supervision of the model running this session.
-disable-model-invocation: true
+description: Hand an agreed task to subagents running the newest Sol model while you direct, review, and verify. Use when the user asks to "have Sol do it", "have Sol build it", or to use Sol or gpt-6.1-sol subagents, for any kind of task: code, research, drafting, analysis. Use only when the user names Sol or gpt-6.1-sol. Never infer it from the size or type of the task.
+disable-model-invocation: false
 ---
 
 # Have Sol Do It

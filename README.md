@@ -24,7 +24,7 @@ If the task is not yet agreed, the skill makes the session model confirm its sco
 
 - Codex invocation, `$have-opus-do-it`
 - Claude Code invocation, `/have-opus-do-it`
-- Automatic invocation, never. This one is mine to trigger.
+- Automatic invocation, ask the agent to have Opus do, build, or handle something
 
 ### [`have-sol-do-it`](./have-sol-do-it)
 
@@ -32,7 +32,7 @@ The same workflow as `have-opus-do-it`, with OpenAI's newest Sol model as the wo
 
 - Codex invocation, `$have-sol-do-it`
 - Claude Code invocation, `/have-sol-do-it`
-- Automatic invocation, never. This one is mine to trigger.
+- Automatic invocation, ask the agent to have Sol do, build, or handle something
 
 ### [`wait-what`](./wait-what)
 
@@ -98,7 +98,7 @@ Keep messaging-app formatting out of the register unless it came from a direct i
 
 Edit [`have-opus-do-it/SKILL.md`](./have-opus-do-it/SKILL.md) or [`have-sol-do-it/SKILL.md`](./have-sol-do-it/SKILL.md) to change the dispatch rules or how much rework the session model may apply directly during review. The "Choose the worker" section is where each file names its model family and carries that family's quirks. The rest of the two files is meant to stay identical, so a change to the shared workflow goes in both.
 
-Keep `disable-model-invocation: true` in the frontmatter. These workflows spawn paid subagents, so they should only ever start when I type them.
+Both skills are model-invocable, so I can ask for them in a plain sentence. Their descriptions tell the agent to use them only when I name Opus or Sol and never to infer them from the task, because they spawn paid subagents. Keep that guard in the description if you edit it.
 
 ## Customize `wait-what`
 
