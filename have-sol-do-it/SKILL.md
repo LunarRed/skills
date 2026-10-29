@@ -12,7 +12,7 @@ The user wants this task done by Sol subagents under your direction, review, and
 
 Every subagent runs the newest Sol model the harness offers, the highest-versioned `gpt-*-sol` in its catalog. Never pin a version number. In Codex, dispatch through the native subagent tool with the model id named explicitly, since Sol is sometimes missing from the interactive picker while an explicit id still works. In T3 Code, if you are not an OpenAI model, route the dispatch to OpenAI's newest Sol through the harness's delegation tool, and read the exact id from its capabilities listing. In plain Claude Code there is no path to Sol: stop and tell the user. Whatever the route, confirm the model the worker reports running, since harness labels have been wrong.
 
-Sol has no `none` or `minimal` effort; `low` is the floor. When a step reviews a diff, tell the worker to cite line numbers from the new version of the file, or it mixes old and new.
+Sol has no `none` or `minimal` effort; `low` is the floor. When a step reviews a diff, tell the worker to cite line numbers from the new version of the file, since one reviewer reported it mixing old and new when left to choose.
 
 ## Dispatch
 
