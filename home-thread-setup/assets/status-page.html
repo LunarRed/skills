@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Status page</title>
+<style>
+:root {
+  color-scheme: dark;
+  --background: oklch(0.158783 0.088248 292.963);
+  --foreground: oklch(0.825679 0.102525 300.094);
+  --popover: oklch(0.185291 0.094468 291.414);
+  --border: oklch(0.244069 0.058401 298.343);
+  --muted-foreground: oklch(0.610866 0.02169 252.97);
+  --secondary-label: oklch(0.606585 0.042341 289.62);
+  --icon-muted: oklch(0.606585 0.042341 289.62);
+  --warning: oklch(0.712091 0.147706 65.033);
+  --destructive: oklch(0.655108 0.221148 23.473);
+  --warning-foreground: oklch(0.829017 0.171221 81.038);
+  --error-foreground: oklch(0.702184 0.189226 22.228);
+  --accent: oklch(0.709592 0.119812 206.086);
+  --message-action: oklch(0.83116 0.134545 197.266);
+  --terminal-cursor: oklch(0.670049 0.206814 328.543);
+  --testing: color-mix(in oklab, var(--message-action) 72%, var(--secondary-label));
+  --monitoring: color-mix(in oklab, var(--terminal-cursor) 72%, var(--foreground));
+  --ring: oklch(0.709592 0.119812 206.086);
+  --label: color-mix(in srgb, var(--foreground) 80%, transparent);
+  --thread-label: color-mix(in srgb, var(--foreground) 85%, transparent);
+  --divider: color-mix(in srgb, var(--border) 65%, transparent);
+  --panel-border: color-mix(in srgb, var(--foreground) 10%, transparent);
+  --panel-background: color-mix(in srgb, var(--popover) 83.6%, var(--background));
+  --row-hover: color-mix(in srgb, var(--foreground) 8%, transparent);
+  --font-sans: -apple-system, BlinkMacSystemFont, "Inter Variable", "Segoe UI", system-ui, sans-serif;
+}
+html { box-sizing: border-box; padding: 0; background: var(--background); }
+:where(body, main, section, header, footer, div, ul, li, details, summary, button, a, span, dl, dt, dd, p, h1, h2, h3, h4) { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; background: var(--background); color: var(--foreground); font: 13px/1.5 var(--font-sans); -webkit-font-smoothing: antialiased; }
+body > svg { position: absolute; }
+main { padding: 16px 10px; width: 380px; max-width: 100%; margin-inline: auto; }
+.frame { background: var(--panel-background); border: 1px solid var(--panel-border); border-radius: 16px; width: 100%; overflow: hidden; }
+.panel-header { padding: 14px 18px 12px; border-block-end: 1px solid var(--divider); }
+.heading-line { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+h1 { font-size: 13px; font-weight: 500; margin: 0; color: var(--label); }
+.project, .refresh { font-size: 11px; color: var(--muted-foreground); }
+.refresh { margin-block-start: 4px; }
+.refresh time { font-variant-numeric: tabular-nums; }
+.message { margin: 0; padding: 12px 18px; font-size: 12px; color: var(--muted-foreground); }
+.attention { display: flex; flex-wrap: wrap; gap: 4px 8px; justify-content: space-between; align-items: center; padding: 12px 18px 4px; font-size: 11px; }
+.attention strong { font-weight: 500; color: var(--warning-foreground); }
+.attention > span { color: var(--muted-foreground); font-size: 10px; }
+ul { list-style: none; margin: 0; padding: 0; }
+.frame > ul { padding: 4px 8px 10px; }
+summary { display: flex; gap: 6px; align-items: center; min-height: 32px; padding: 4px 10px; border-radius: 8px; list-style: none; cursor: pointer; }
+summary::-webkit-details-marker { display: none; }
+:where(summary, .threads li, .copy):hover { background: var(--row-hover); }
+:where(summary, a, button):focus-visible { outline: 2px solid var(--ring); outline-offset: -2px; }
+.chevron { width: 5px; height: 5px; border-right: 1px solid var(--muted-foreground); border-bottom: 1px solid var(--muted-foreground); transform: rotate(-45deg); flex: 0 0 5px; margin-inline-end: 2px; }
+details[open] > summary .chevron { transform: rotate(45deg); margin-block-start: -3px; }
+.ticket { font-size: 10px; font-variant-numeric: tabular-nums; white-space: nowrap; flex: none; }
+.task-name { white-space: nowrap; text-overflow: ellipsis; overflow: hidden; min-width: 0; flex: 1; font-weight: 500; color: var(--label); }
+.phase { font-size: 11px; font-weight: 400; white-space: nowrap; flex: none; line-height: 16px; text-align: end; }
+.dot { display: inline-block; width: 4px; height: 4px; margin-inline-end: 5px; border-radius: 50%; background: currentColor; vertical-align: 2px; }
+.detail { padding: 4px 10px 8px 24px; margin: 0 0 4px; font-size: 12px; color: var(--label); }
+.full-title { font-size: 12px; color: var(--thread-label); margin: 0 0 8px; line-height: 1.5; font-weight: 500; }
+dl { display: grid; grid-template-columns: 45px minmax(0, 1fr); gap: 4px 6px; margin: 0 0 8px; line-height: 1.5; }
+dt { color: var(--muted-foreground); font-size: 11px; }
+dd { margin: 0; color: var(--label); overflow-wrap: anywhere; }
+.threads { border-block-start: 1px solid var(--divider); padding-block-start: 4px; }
+.threads li { display: grid; grid-template-columns: minmax(0, 1fr) auto 26px 26px; align-items: center; column-gap: 6px; min-height: 28px; position: relative; border-radius: 8px; }
+.thread-link { border: 0; background: transparent; font-family: inherit; text-align: start; display: flex; align-items: center; gap: 6px; cursor: pointer; color: var(--thread-label); text-decoration: none; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; min-width: 0; flex: 1; font-size: 12px; line-height: 28px; padding-inline: 4px; border-radius: 6px; }
+.thread-link:hover { color: var(--accent); }
+.thread-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.thread-link .chevron { width: 4px; height: 4px; flex-basis: 4px; margin-inline-end: 0; }
+.thread-link[aria-expanded="true"] .chevron { transform: rotate(45deg); margin-block-start: -3px; }
+.thread-state { grid-column: 1 / -1; padding: 2px 4px 8px 14px; color: var(--label); font-size: 11px; line-height: 1.6; overflow-wrap: anywhere; }
+.thread-state p { margin: 0; }
+.thread-updated { color: var(--muted-foreground); }
+.open-thread { min-width: 26px; min-height: 26px; display: inline-flex; align-items: center; justify-content: center; border-radius: 6px; color: var(--icon-muted); text-decoration: none; }
+.open-thread:hover { color: var(--accent); background: var(--row-hover); }
+.copy { border: 0; background: transparent; color: var(--icon-muted); padding: 0; min-width: 26px; min-height: 26px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; flex: none; position: relative; border-radius: 6px; }
+.copy:hover { color: var(--accent); }
+.copy:active { background: var(--row-hover); }
+.copy-feedback:not(:empty) { position: absolute; inset-inline-end: 28px; top: 2px; background: var(--popover); border: 1px solid var(--panel-border); border-radius: 6px; padding: 2px 6px; white-space: nowrap; font: 11px/16px var(--font-sans); color: var(--foreground); z-index: 2; }
+.copy[data-failed] .copy-feedback { color: var(--destructive); }
+.panel-footer { border-block-start: 1px solid var(--divider); padding: 10px 18px; display: flex; flex-wrap: wrap; gap: 4px 8px; justify-content: space-between; font-size: 10px; color: var(--muted-foreground); }
+.outline .task { padding-block-end: 4px; }
+.outline .tree-threads { border-block-start: 0; margin: 0 4px 0 18px; padding: 0 0 0 13px; border-inline-start: 1px solid var(--divider); }
+.tree-threads li::before { content: ""; position: absolute; width: 9px; inset-inline-start: -13px; top: 14px; border-block-start: 1px solid var(--divider); }
+.tree-threads .phase { font-size: 10px; }
+.tree-threads .dot { display: none; }
+.outline .detail { margin-block-end: 4px; }
+.outline .detail dl { margin-block-end: 0; }
+.done .task-name { color: var(--muted-foreground); font-weight: 400; }
+.key { display: flex; gap: 12px; flex-wrap: wrap; font-size: 11px; color: var(--muted-foreground); margin-block-start: 14px; }
+.key span { display: flex; align-items: center; gap: 5px; }
+.key svg { color: var(--muted-foreground); }
+@media (max-width: 420px) {
+  main { padding: 12px 8px; }
+  .key { padding-inline: 8px; }
+  }
+:root { --accent-surface: oklch(0.304413 0.074753 259.901); }
+.emphasized { --testing: color-mix(in oklch, color-mix(in oklch, var(--message-action) 55%, var(--accent-surface)) 75%, var(--foreground)); --monitoring: var(--terminal-cursor); }
+/* Each task row and each thread line carries its own phase class, so a thread shows its own phase color, not its task's. */
+.emphasized :is(.task, .tree-threads li) { --phase-color: var(--muted-foreground); --bar-opacity: .6; }
+.emphasized :is(.task, .tree-threads li).waiting { --phase-color: var(--warning-foreground); --bar-opacity: 1; }
+.emphasized :is(.task, .tree-threads li).blocked { --phase-color: var(--error-foreground); --bar-opacity: 1; }
+.emphasized :is(.task, .tree-threads li).unknown { --phase-color: var(--muted-foreground); }
+.emphasized :is(.task, .tree-threads li).coding { --phase-color: var(--accent); }
+.emphasized :is(.task, .tree-threads li).testing { --phase-color: var(--testing); }
+.emphasized :is(.task, .tree-threads li).monitoring { --phase-color: var(--monitoring); }
+.emphasized .task > details > summary { position: relative; }
+.emphasized .task > details > summary::before {
+  content: ""; position: absolute; inset-inline-start: 0; inset-block: 3px;
+  width: 3px; border: 0; border-radius: 2px;
+  background: var(--phase-color); opacity: var(--bar-opacity);
+}
+.emphasized .phase { color: var(--phase-color); font-weight: 500; }
+.emphasized .dot { width: 8px; height: 8px; vertical-align: 0; }
+.emphasized .testing .dot { background: transparent; border: 2px solid currentColor; }
+.emphasized .phase.unknown .dot { background: color-mix(in srgb, var(--warning) 38%, transparent); }
+.emphasized .detail {
+  border-inline-start: 2px solid var(--phase-color);
+  margin-inline-start: 10px; padding-inline-start: 12px;
+}
+.emphasized dt:nth-of-type(2), .emphasized dt:nth-of-type(2) + dd { color: var(--phase-color); font-weight: 500; }
+.bold .task > details > summary { background: color-mix(in oklab, var(--phase-color) 10%, var(--panel-background)); }
+.bold .task.waiting > details > summary, .bold .task.blocked > details > summary { background: color-mix(in oklab, var(--phase-color) 12%, var(--panel-background)); }
+.bold .task.done > details > summary { background: color-mix(in oklab, var(--phase-color) 8%, var(--panel-background)); }
+.bold .task > details > summary:hover { background: color-mix(in oklab, var(--phase-color) 16%, var(--panel-background)); }
+
+.bold .waiting-badge {
+  display: inline-flex; align-items: center; gap: 7px; padding: 3px 8px;
+  border: 1px solid color-mix(in oklab, var(--warning-foreground) 24%, var(--panel-background));
+  border-radius: 6px; color: var(--warning-foreground); font-size: 11px; font-weight: 500;
+  background: color-mix(in oklab, var(--warning-foreground) 12%, var(--panel-background));
+}
+.bold .waiting-badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.bold .waiting-badge.none { color: var(--muted-foreground); border-color: var(--divider); background: transparent; font-weight: 400; }
+.bold .ticket { color: var(--accent); }
+@media (forced-colors: active) {
+  :where(summary, a, button):focus-visible { outline-color: Highlight; }
+  .emphasized .task > details > summary::before { background: CanvasText; }
+  .emphasized .detail { border-color: CanvasText; }
+  .bold .waiting-badge { border-color: CanvasText; }
+}
+
+.bold .attention { padding-block: 12px 8px; }
+.bold .tree-threads { border-inline-start-color: color-mix(in oklab, var(--phase-color) 28%, var(--panel-background)); }
+.bold .tree-threads li::before { border-block-start-color: color-mix(in oklab, var(--phase-color) 28%, var(--panel-background)); }
+.bold .tree-threads .phase { color: color-mix(in oklab, var(--phase-color) 80%, var(--secondary-label)); font-weight: 400; }
+.bold .tree-threads li:hover { background: color-mix(in oklab, var(--phase-color) 4%, var(--panel-background)); }
+@media (forced-colors: active) {
+  .bold .tree-threads, .bold .tree-threads li::before { border-color: CanvasText; }
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" aria-hidden="true"><symbol id="copy-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="5.5" y="5.5" width="7" height="8" rx="1.3"/><path d="M10 3V2.5A1 1 0 0 0 9 1.5H3a1 1 0 0 0-1 1V10a1 1 0 0 0 1 1h.5"/></symbol></svg>
+<main><section class="frame outline emphasized bold" aria-label="Work status"><header class="panel-header"><div class="heading-line"><h1>Work status</h1><span class="project" id="project"></span></div><div class="refresh" id="refresh" hidden></div><div class="refresh" id="status-note" hidden></div></header><p class="message" id="message" aria-live="polite">No snapshot yet. Run /home-thread-update in the home thread.</p><div class="attention" id="attention" hidden><strong class="waiting-badge" id="waiting-count"></strong><span id="thread-count"></span></div><ul id="tasks" hidden></ul><footer class="panel-footer" id="machines" hidden></footer></section><div class="key"><span>Click a task to expand or collapse</span><span><svg width="14" height="14" aria-hidden="true"><use href="#copy-icon"/></svg> Copy thread link</span></div></main>
+<template id="task-template"><li class="task"><details><summary><span class="chevron" aria-hidden="true"></span><span class="ticket"></span><span class="task-name"></span><span class="phase"><span class="dot" aria-hidden="true"></span></span></summary><div class="detail"><p class="full-title"></p><dl></dl></div></details><ul class="threads tree-threads"></ul></li></template>
+<template id="thread-template"><li><button type="button" class="thread-link" aria-expanded="false"><span class="chevron" aria-hidden="true"></span><span class="thread-name"></span></button><span class="phase"><span class="dot" aria-hidden="true"></span></span><a class="open-thread"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></a><button type="button" class="copy"><svg width="14" height="14" aria-hidden="true"><use href="#copy-icon"/></svg><span class="copy-feedback" aria-live="polite"></span></button><div class="thread-state" hidden></div></li></template>
+<script>
+document.addEventListener('click', async (event) => {
+  const toggle = event.target.closest('.thread-link[aria-controls]');
+  if (toggle) {
+    const expanded = toggle.getAttribute('aria-expanded') === 'true';
+    toggle.setAttribute('aria-expanded', String(!expanded));
+    document.getElementById(toggle.getAttribute('aria-controls')).hidden = expanded;
+    return;
+  }
+  const button = event.target.closest('button[data-copy]');
+  if (!button) return;
+  const feedback = button.querySelector('.copy-feedback');
+  document.querySelectorAll('.copy-feedback').forEach((node) => { node.textContent = ''; });
+  button.removeAttribute('data-failed');
+  try {
+    if (!navigator.clipboard || !window.isSecureContext) throw new Error('Clipboard unavailable');
+    await navigator.clipboard.writeText(button.dataset.copy);
+    feedback.textContent = 'Copied';
+  } catch {
+    const field = document.createElement('textarea');
+    field.value = button.dataset.copy;
+    field.setAttribute('readonly', '');
+    field.style.cssText = 'position:fixed;left:-9999px;top:0';
+    document.body.append(field);
+    field.select();
+    let copied = false;
+    try { copied = document.execCommand('copy'); } catch {}
+    field.remove();
+    button.focus();
+    feedback.textContent = copied ? 'Copied' : 'Copy unavailable';
+    if (!copied) button.setAttribute('data-failed', '');
+  }
+});
+</script>
+<script>
+// Renders the status page from the artifact database. Every string from the
+// database goes into the page through textContent or an attribute, never as HTML.
+const PHASE_ORDER = ['waiting', 'blocked', 'unknown', 'coding', 'testing', 'monitoring', 'done'];
+const PHASE_WORDS = {
+  waiting: 'Waiting on you',
+  blocked: 'Blocked',
+  unknown: 'Unknown',
+  coding: 'Coding',
+  testing: 'Testing',
+  monitoring: 'Monitoring',
+  done: 'Done',
+};
+const THREAD_LINK = 'https://app.t3.codes/threads/';
+const EMPTY_TEXT = 'No snapshot yet. Run /home-thread-update in the home thread.';
+const SIGNED_OUT_TEXT = 'This page needs to be opened signed in to claude.ai.';
+const UNREACHABLE_TEXT = "Can't reach the data yet.";
+const FAILED_TEXT = "Can't reach the data. Reopen this page to try again.";
+
+const view = {
+  project: document.getElementById('project'),
+  refresh: document.getElementById('refresh'),
+  statusNote: document.getElementById('status-note'),
+  message: document.getElementById('message'),
+  attention: document.getElementById('attention'),
+  waitingCount: document.getElementById('waiting-count'),
+  threadCount: document.getElementById('thread-count'),
+  tasks: document.getElementById('tasks'),
+  machines: document.getElementById('machines'),
+  taskTemplate: document.getElementById('task-template').content.firstElementChild,
+  threadTemplate: document.getElementById('thread-template').content.firstElementChild,
+};
+
+let snapshot = null;      // body of status/current, or null when there is none yet
+let notes = new Map();    // task key to note text
+let confirmed = false;    // a snapshot has come from the store itself, not a saved copy
+let timedOut = false;     // the 10 second loading timer fired before that
+let failed = false;       // the subscription ended with an error
+let noDatabase = false;   // claude.use("db") resolved null
+
+const text = (value) => (typeof value === 'string' ? value.trim() : typeof value === 'number' ? String(value) : '');
+const rows = (value) => (Array.isArray(value) ? value.filter((row) => row && typeof row === 'object') : []);
+const phaseOf = (thread) => (PHASE_ORDER.includes(thread.phase) ? thread.phase : 'unknown');
+const rank = (phase) => PHASE_ORDER.indexOf(phase);
+
+function toDate(value) {
+  const date = typeof value === 'string' && value ? new Date(value) : null;
+  return date && !Number.isNaN(date.getTime()) ? date : null;
+}
+const clock = (date) => date.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+const day = (date) => date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+const isToday = (date) => date.toDateString() === new Date().toDateString();
+
+function ago(date) {
+  const minutes = Math.floor((Date.now() - date.getTime()) / 60000);
+  if (minutes < 1) return 'just now';
+  if (minutes < 60) return `${minutes} min ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} hr ago`;
+  const days = Math.floor(hours / 24);
+  return days === 1 ? '1 day ago' : `${days} days ago`;
+}
+
+function el(tag, className, content) {
+  const node = document.createElement(tag);
+  if (className) node.className = className;
+  if (content) node.textContent = content;
+  return node;
+}
+
+function render() {
+  const problem = noDatabase ? SIGNED_OUT_TEXT
+    : failed ? FAILED_TEXT
+    : timedOut && !confirmed ? UNREACHABLE_TEXT
+    : '';
+  const hasData = !noDatabase && snapshot !== null;
+  view.message.textContent = problem || EMPTY_TEXT;
+  view.message.hidden = hasData;
+  view.statusNote.textContent = problem;
+  view.statusNote.hidden = !hasData || !problem;
+  view.refresh.hidden = !hasData;
+  view.attention.hidden = !hasData;
+  view.tasks.hidden = !hasData;
+  view.project.textContent = hasData ? text(snapshot.project) : '';
+  if (!hasData) {
+    view.tasks.replaceChildren();
+    view.machines.replaceChildren();
+    view.machines.hidden = true;
+    return;
+  }
+  renderSnapshot(snapshot);
+}
+
+function renderSnapshot(data) {
+  const refreshed = toDate(data.refreshedAt);
+  view.refresh.replaceChildren('Snapshot refreshed by hand.');
+  if (refreshed) {
+    const time = el('time', '', `${day(refreshed)}, ${clock(refreshed)}`);
+    time.setAttribute('datetime', refreshed.toISOString());
+    view.refresh.append(' Last refresh ', time);
+  }
+
+  const threads = rows(data.threads);
+  const waiting = threads.filter((thread) => phaseOf(thread) === 'waiting').length;
+  view.waitingCount.textContent = waiting === 0 ? 'Nothing waiting on you' : `${waiting} waiting on you`;
+  view.waitingCount.classList.toggle('none', waiting === 0);
+  view.threadCount.textContent = threads.length === 1 ? '1 linked thread' : `${threads.length} linked threads`;
+
+  // Group threads under their task. A task's phase is the most urgent phase among its threads.
+  const taskRows = new Map(rows(data.tasks).map((task) => [text(task.key), task]));
+  const groups = new Map();
+  for (const thread of threads) {
+    const key = text(thread.taskKey) || 'unassigned';
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(thread);
+  }
+  const byUrgency = (a, b) => rank(phaseOf(a)) - rank(phaseOf(b))
+    || (toDate(b.threadUpdatedAt)?.getTime() ?? 0) - (toDate(a.threadUpdatedAt)?.getTime() ?? 0);
+  const tasks = [...groups].map(([key, members]) => {
+    members.sort(byUrgency);
+    return { key, row: taskRows.get(key) || {}, threads: members, phase: phaseOf(members[0]) };
+  });
+  // Phase priority, then ticket. Done sorts last among tickets because it is the last phase. Unassigned always last.
+  tasks.sort((a, b) => (a.key === 'unassigned') - (b.key === 'unassigned')
+    || rank(a.phase) - rank(b.phase)
+    || a.key.localeCompare(b.key, undefined, { numeric: true }));
+
+  // Keep whatever the viewer had expanded when new data arrives.
+  const openTasks = new Set([...view.tasks.querySelectorAll('.task > details[open]')].map((node) => node.parentElement.dataset.key));
+  const openThreads = new Set([...view.tasks.querySelectorAll('.thread-link[aria-expanded="true"]')].map((node) => node.parentElement.dataset.key));
+  let threadNumber = 0;
+  view.tasks.replaceChildren(...tasks.map((task) => {
+    const item = taskItem(task, openTasks.has(task.key));
+    item.querySelector('.threads').append(...task.threads.map((thread) => threadItem(thread, ++threadNumber, openThreads)));
+    return item;
+  }));
+
+  view.machines.replaceChildren(...rows(data.machines).map(machineEntry));
+  view.machines.hidden = view.machines.childElementCount === 0;
+}
+
+function taskItem(task, open) {
+  const item = view.taskTemplate.cloneNode(true);
+  const row = task.row;
+  const unassigned = task.key === 'unassigned';
+  const name = text(row.shortTitle) || (unassigned ? 'Unassigned' : task.key);
+  item.classList.add(task.phase);
+  item.dataset.key = task.key;
+  item.querySelector('details').open = open;
+  if (unassigned) item.querySelector('.ticket').remove();
+  else item.querySelector('.ticket').textContent = task.key;
+  item.querySelector('.task-name').textContent = name;
+  const phase = item.querySelector('.phase');
+  phase.classList.add(task.phase);
+  phase.append(PHASE_WORDS[task.phase]);
+  item.querySelector('.full-title').textContent = text(row.fullTitle) || name;
+
+  const entries = [];
+  if ([row.done, row.next, row.blocking].some(text)) {
+    entries.push(['Done', row.done], ['Next', row.next], ['Blocking', row.blocking]);
+  }
+  if (notes.has(task.key)) entries.push(['Note', notes.get(task.key)]);
+  const list = item.querySelector('dl');
+  for (const [label, value] of entries) list.append(el('dt', '', label), el('dd', '', text(value)));
+  if (entries.length === 0) list.remove();
+  return item;
+}
+
+function threadItem(thread, number, openThreads) {
+  const item = view.threadTemplate.cloneNode(true);
+  const phase = phaseOf(thread);
+  const key = text(thread.key) || `${text(thread.environmentId)}/${text(thread.threadId)}`;
+  const title = text(thread.title) || text(thread.threadId);
+  // The thread id is used as is: it may already hold percent-encoded characters.
+  const link = `${THREAD_LINK}${text(thread.environmentId)}/${text(thread.threadId)}`;
+  const stateId = `thread-state-${number}`;
+  const expanded = openThreads.has(key);
+  item.classList.add(phase);
+  item.dataset.key = key;
+
+  const toggle = item.querySelector('.thread-link');
+  toggle.setAttribute('aria-controls', stateId);
+  toggle.setAttribute('aria-expanded', String(expanded));
+  toggle.querySelector('.thread-name').textContent = title;
+
+  const word = item.querySelector('.phase');
+  word.classList.add(phase);
+  word.append(PHASE_WORDS[phase]);
+  const reason = text(thread.reason);
+  word.title = `${PHASE_WORDS[phase]}${thread.basis === 'judged' ? ' (judged)' : ''}${reason ? `: ${reason}` : ''}`;
+
+  const open = item.querySelector('.open-thread');
+  open.setAttribute('href', link);
+  open.setAttribute('aria-label', `Open ${title} in T3 Code`);
+  open.setAttribute('title', `Open ${title} in T3 Code`);
+  const copy = item.querySelector('.copy');
+  copy.dataset.copy = link;
+  copy.setAttribute('aria-label', `Copy link to ${title}`);
+
+  const state = item.querySelector('.thread-state');
+  state.id = stateId;
+  state.hidden = !expanded;
+  const now = text(thread.now);
+  const needs = text(thread.needs);
+  const updated = toDate(thread.threadUpdatedAt);
+  if (now) state.append(el('p', '', now));
+  if (needs) state.append(el('p', '', `Needs: ${needs}`));
+  if (updated) {
+    const line = el('p', 'thread-updated', `Updated ${ago(updated)}`);
+    line.dataset.updated = updated.toISOString();
+    state.append(line);
+  }
+  if (thread.readFailed === true) state.append(el('p', 'thread-updated', 'Read failed'));
+  return item;
+}
+
+function machineEntry(machine) {
+  const label = text(machine.label) || text(machine.environmentId);
+  const result = text(machine.result);
+  const succeeded = toDate(machine.succeededAt);
+  const when = succeeded ? (isToday(succeeded) ? clock(succeeded) : `${day(succeeded)} ${clock(succeeded)}`) : '';
+  let line = result ? `${label}: ${result}` : label;
+  if (when) line += result === 'ok' ? ` ${when}` : `, last ok ${when}`;
+  const entry = el('span', '', line);
+  if (text(machine.note)) entry.title = text(machine.note);
+  return entry;
+}
+
+// Relative times move forward once a minute from the data already on the page.
+setInterval(() => {
+  for (const line of view.tasks.querySelectorAll('[data-updated]')) {
+    line.textContent = `Updated ${ago(new Date(line.dataset.updated))}`;
+  }
+}, 60000);
+
+async function start() {
+  let db = null;
+  try { db = await window.claude.use('db'); } catch { db = null; }
+  if (!db) {
+    noDatabase = true;
+    render();
+    return;
+  }
+  // Subscribe once to each. Never resubscribe or reload: the store retries on its own.
+  const timer = setTimeout(() => { timedOut = true; render(); }, 10000);
+  db.doc('status/current').onSnapshot((snap) => {
+    if (!snap.metadata.fromCache) {
+      confirmed = true;
+      clearTimeout(timer);
+    }
+    snapshot = snap.exists ? snap.data() || null : null;
+    render();
+  }, () => {
+    failed = true;
+    clearTimeout(timer);
+    render();
+  });
+  db.collection('notes').onSnapshot((snap) => {
+    notes = new Map(snap.docs.map((doc) => [doc.id, text(doc.data()?.text)]).filter(([, note]) => note));
+    render();
+  }, (error) => console.warn('Notes are unavailable:', error && error.code));
+}
+
+start();
+</script>
+</body>
+</html>

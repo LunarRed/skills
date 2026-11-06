@@ -34,6 +34,26 @@ The same workflow as `have-opus-do-it`, with OpenAI's newest Sol model as the wo
 - Claude Code invocation, `/have-sol-do-it`
 - Automatic invocation, ask the agent to have Sol do, build, or handle something
 
+### [`home-thread-setup`](./home-thread-setup)
+
+Creates a private status page for a project and records its home thread, the T3 Code thread running Claude where I keep track of the project. The status page lists the project's tasks and what each thread working on them is doing or waiting on. Setup can also pin and rename the home thread.
+
+- Codex invocation, `$home-thread-setup`
+- Claude Code invocation, `/home-thread-setup`
+- Automatic invocation, ask the agent to set up a home thread or create a status page for this project
+
+It runs only in a Claude thread in T3 Code that has the claude-artifacts tools. Both skills stop with a plain message in any other thread.
+
+### [`home-thread-update`](./home-thread-update)
+
+Refreshes the status page by hand. In the home thread, it reads every thread of the project on every machine, sorts each into a phase (waiting on me, blocked, coding, testing, monitoring, done, or unknown when a machine did not answer), groups threads by ticket, and writes one snapshot that the page renders. It re-reads only threads that changed or could not be read last time, and keeps the rest. It never republishes the page and never runs on a schedule.
+
+- Codex invocation, `$home-thread-update`
+- Claude Code invocation, `/home-thread-update`
+- Automatic invocation, ask the agent to refresh or update this project's status page
+
+Like setup, it runs only in a Claude thread in T3 Code, and only in the home thread for that project.
+
 ### [`keep-warm`](./keep-warm)
 
 Keeps a T3 Code thread's prompt cache warm while I'm away by scheduling a short keepalive ping into that thread. Pings never use tools. A separate check runs every four hours, keeps going if I sent a message since the last check, and otherwise stops everything, so keep-warm ends four to eight hours after I go quiet. If I ask for a hard stop ("until 6pm", "for exactly two hours"), it ends at that time no matter what.
@@ -89,6 +109,16 @@ skills/
 │   └── SKILL.md
 ├── have-sol-do-it/
 │   └── SKILL.md
+├── home-thread-setup/
+│   ├── SKILL.md
+│   ├── agents/
+│   │   └── openai.yaml
+│   └── assets/
+│       └── status-page.html
+├── home-thread-update/
+│   ├── SKILL.md
+│   └── agents/
+│       └── openai.yaml
 ├── keep-warm/
 │   ├── SKILL.md
 │   └── agents/
@@ -113,6 +143,10 @@ Keep messaging-app formatting out of the register unless it came from a direct i
 Edit [`have-opus-do-it/SKILL.md`](./have-opus-do-it/SKILL.md) or [`have-sol-do-it/SKILL.md`](./have-sol-do-it/SKILL.md) to change the dispatch rules or how much rework the session model may apply directly during review. The "Choose the worker" section is where each file names its model family and carries that family's quirks. The rest of the two files is meant to stay identical, so a change to the shared workflow goes in both.
 
 Both skills are model-invocable, so I can ask for them in a plain sentence. Their descriptions tell the agent to use them only when I name Opus or Sol and never to infer them from the task, because they spawn paid subagents. Keep that guard in the description if you edit it.
+
+## Customize `home-thread-setup` and `home-thread-update`
+
+Edit [`home-thread-setup/assets/status-page.html`](./home-thread-setup/assets/status-page.html) to change how the status page looks. It is the template setup publishes. Neither skill republishes an existing page, so a template change reaches an existing page only when that page is republished by hand. Edit the "Phase checklist" in [`home-thread-update/SKILL.md`](./home-thread-update/SKILL.md) to change how a thread is sorted into a phase. The same file holds the snapshot shape, which the page template reads, so a field change goes in both files.
 
 ## Customize `keep-warm`
 
