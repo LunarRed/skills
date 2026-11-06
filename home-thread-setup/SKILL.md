@@ -6,7 +6,7 @@ disable-model-invocation: false
 
 # Home Thread Setup
 
-The **home thread** is the one T3 Code thread, running Claude, where the user runs `/home-thread-setup` and `/home-thread-update` for a project. Setup publishes the project's **status page**, a private claude.ai artifact page, and records where everything lives in the **locator file**, `.home-thread.json` in the project folder. `/home-thread-update` reads that file later to fill the page.
+The **home thread** is the one T3 Code thread, running Claude, where the user runs `/home-thread-setup` and `/home-thread-update` for a project. Setup publishes the project's **status page**, a private claude.ai artifact page, and records where everything lives in the **locator file**, `.home-thread.json` in the project folder. Setup ends by running `/home-thread-update` once, so the page is already filled when the user opens it; later refreshes are `/home-thread-update` on its own.
 
 A **machine** is one of the user's computers running T3 Code. T3 calls it an environment and gives it an `environmentId`. `$T3CODE_THREAD_ID` is this thread. `<project folder>` is the project's `workspaceRoot` from `t3_project_read`, using the `projectId` that `t3_thread_read` reports for this thread; the shell does not set a variable for it, and a worktree thread's working directory is not the project folder.
 
@@ -52,9 +52,9 @@ A **machine** is one of the user's computers running T3 Code. T3 calls it an env
 
    Done when the locator file parses as JSON, the exclude file contains `.home-thread.json` exactly once, and `get_artifact` returns the URL.
 
-7. **Pin, rename, and hand off.** If the user said yes to pinning and renaming, call `t3_thread_organize` with `action: "pin"` and `t3_thread_update` with `action: "rename"` and `title: "🏠 <project name>"`, both without `threadId` so they act on this thread. Set `pinnedAndRenamed` in the locator file to `true` when both calls succeeded, and to `false` when either failed or the user declined; if a call failed, say so. Reply with the page URL in one line and tell the user to run `/home-thread-update` to fill it: in this thread when `home.threadId` is this thread, otherwise in the home thread.
+7. **Pin, rename, and fill the page.** If the user said yes to pinning and renaming, call `t3_thread_organize` with `action: "pin"` and `t3_thread_update` with `action: "rename"` and `title: "🏠 <project name>"`, both without `threadId` so they act on this thread. Set `pinnedAndRenamed` in the locator file to `true` when both calls succeeded, and to `false` when either failed or the user declined; if a call failed, say so. Then, when `home.threadId` is this thread, run `/home-thread-update` here right away so the page shows real data; its one-line reply, which carries the page URL, is the hand-off. When the home thread is elsewhere, reply with the page URL and tell the user to run `/home-thread-update` in the home thread.
 
-   Done when the pin and rename succeeded or were declined, the locator file's `pinnedAndRenamed` matches what happened, and the reply holds the URL.
+   Done when the pin and rename succeeded or were declined, the locator file's `pinnedAndRenamed` matches what happened, and either the first refresh has written a snapshot or the reply names the home thread to run it in.
 
 ## Locator file
 
