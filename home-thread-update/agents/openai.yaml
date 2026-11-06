@@ -1,6 +1,0 @@
-interface:
-  display_name: "Home Thread Update"
-  short_description: "Refresh this project's status page from its threads on every machine"
-  default_prompt: "Use $home-thread-update to refresh this project's status page."
-policy:
-  allow_implicit_invocation: true

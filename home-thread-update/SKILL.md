@@ -17,7 +17,7 @@ The only thing this skill writes is `status/current`. The page stays as publishe
 
 ## Steps
 
-1. **Check this is the home thread.** If the claude-artifacts tool `db_write` or the T3 Code tool `t3_thread_list` is missing, reply in one line that this thread lacks those tools so update cannot run here, and stop. Then read `$T3CODE_PROJECT_ROOT/.home-thread.json`.
+1. **Check this is the home thread.** If the claude-artifacts tool `db_write` or the T3 Code tool `t3_thread_list` is missing, reply in one line that this thread lacks those tools so update cannot run here, and stop. Then read `<project folder>/.home-thread.json`, where `<project folder>` is the project's `workspaceRoot` from `t3_project_read`, using the `projectId` that `t3_thread_read` reports for `$T3CODE_THREAD_ID`.
    - Missing: reply "This project has no status page yet. Run /home-thread-setup in the thread you want as the home thread." and stop.
    - `home.threadId` differs from `$T3CODE_THREAD_ID`: reply "This is not the home thread for <project>. Run /home-thread-update there." and stop.
 
