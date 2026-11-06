@@ -30,9 +30,10 @@ The only thing this skill writes is `status/current`. The page stays as publishe
 3. **List each machine's threads.** For each entry in the locator file's `machines`, call `t3_thread_list` with its `projectId` and `environmentId`, `includeSubagents: false`, and `limit: 100`, paging with `cursor` until `nextCursor` is absent. Drop the home thread. Give the machine a result:
    - `ok`: every page listed, and every read in step 4 succeeds.
    - `partial`: listing stopped after some pages, or some reads in step 4 fail. Use the threads you got, and carry forward as `unknown` any previous row for this machine missing from the partial list.
-   - `unreachable`: the first call failed, or the entry has no `projectId`. Carry forward every previous row for this machine.
+   - `unreachable`: the first call failed. Carry forward every previous row for this machine.
+   - `N/A`: the entry has no `projectId`, so this project does not exist on that machine. List nothing; it has no rows. Leave `succeededAt` out and write `note` as "No project for this repo on this machine."
 
-   A carried-forward row gets `phase: "unknown"`, `basis: "recorded"`, `readFailed: true`, and `reason: "machine unreachable"`, and keeps its `now`, `needs`, and `readAt`. Set the machine's `attemptedAt` to now. Set `succeededAt` to now for `ok`, else keep the previous value. Write `note` in plain words for any result other than `ok`, e.g. "Did not answer. Its threads are shown as Unknown with their last known text."
+   A carried-forward row gets `phase: "unknown"`, `basis: "recorded"`, `readFailed: true`, and `reason: "machine unreachable"`, and keeps its `now`, `needs`, and `readAt`. Set the machine's `attemptedAt` to now. Set `succeededAt` to now for `ok`, else keep the previous value. Write `note` in plain words for any result other than `ok` or `N/A`, e.g. "Did not answer. Its threads are shown as Unknown with their last known text."
 
    Done when every machine has a result and every listed thread is either queued for step 4 or carried forward.
 
@@ -62,7 +63,7 @@ The only thing this skill writes is `status/current`. The page stays as publishe
 
    Done when the stored `refreshedAt` equals the one you wrote.
 
-8. **Reply** in one or two lines: thread count, how many are `waiting`, which machines answered, and `page.url`. For example: `42 threads, 3 waiting on you. hiphopopotamus ok, rhymenocerous unreachable. <url>`
+8. **Reply** in one or two lines: thread count, how many are `waiting`, which machines answered, and `page.url`. For example: `42 threads, 3 waiting on you. hiphopopotamus ok, rhymenocerous N/A. <url>`
 
 ## Phase checklist
 
@@ -93,7 +94,7 @@ Store exactly these fields. The page works out each task's phase, the counts, an
   // the locator file's project, and when this refresh ran (UTC)
   "project": "mm-ai-email-classification",
   "refreshedAt": "2026-11-06T17:32:00Z",
-  // one per machine in the locator file; result is ok, partial, or unreachable
+  // one per machine in the locator file; result is ok, partial, unreachable, or N/A (no project on that machine)
   "machines": [
     { "environmentId": "...", "label": "rhymenocerous", "result": "unreachable", "attemptedAt": "2026-11-06T17:32:00Z",
       "succeededAt": "2026-11-05T21:10:00Z", "note": "Did not answer. Its threads are shown as Unknown with their last known text." }
