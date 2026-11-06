@@ -38,7 +38,6 @@ The same workflow as `have-opus-do-it`, with OpenAI's newest Sol model as the wo
 
 Creates a private status page for a project and records its home thread, the T3 Code thread running Claude where I keep track of the project. The status page lists the project's tasks and what each thread working on them is doing or waiting on. Setup can also pin and rename the home thread.
 
-- Codex invocation, `$home-thread-setup`
 - Claude Code invocation, `/home-thread-setup`
 - Automatic invocation, ask the agent to set up a home thread or create a status page for this project
 
@@ -48,7 +47,6 @@ It runs only in a Claude thread in T3 Code that has the claude-artifacts tools. 
 
 Refreshes the status page by hand. In the home thread, it reads every thread of the project on every machine, sorts each into a phase (waiting on me, blocked, coding, testing, monitoring, done, or unknown when a machine did not answer), groups threads by ticket, and writes one snapshot that the page renders. It re-reads only threads that changed or could not be read last time, and keeps the rest. It never republishes the page and never runs on a schedule.
 
-- Codex invocation, `$home-thread-update`
 - Claude Code invocation, `/home-thread-update`
 - Automatic invocation, ask the agent to refresh or update this project's status page
 
@@ -111,14 +109,10 @@ skills/
 │   └── SKILL.md
 ├── home-thread-setup/
 │   ├── SKILL.md
-│   ├── agents/
-│   │   └── openai.yaml
 │   └── assets/
 │       └── status-page.html
 ├── home-thread-update/
-│   ├── SKILL.md
-│   └── agents/
-│       └── openai.yaml
+│   └── SKILL.md
 ├── keep-warm/
 │   ├── SKILL.md
 │   └── agents/

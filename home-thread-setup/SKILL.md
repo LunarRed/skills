@@ -8,7 +8,7 @@ disable-model-invocation: false
 
 The **home thread** is the one T3 Code thread, running Claude, where the user runs `/home-thread-setup` and `/home-thread-update` for a project. Setup publishes the project's **status page**, a private claude.ai artifact page, and records where everything lives in the **locator file**, `.home-thread.json` in the project folder. `/home-thread-update` reads that file later to fill the page.
 
-A **machine** is one of the user's computers running T3 Code. T3 calls it an environment and gives it an `environmentId`. `$T3CODE_PROJECT_ROOT` is the project folder and `$T3CODE_THREAD_ID` is this thread.
+A **machine** is one of the user's computers running T3 Code. T3 calls it an environment and gives it an `environmentId`. `$T3CODE_THREAD_ID` is this thread. `<project folder>` is the project's `workspaceRoot` from `t3_project_read`, using the `projectId` that `t3_thread_read` reports for this thread; the shell does not set a variable for it, and a worktree thread's working directory is not the project folder.
 
 ## Steps
 
@@ -16,7 +16,7 @@ A **machine** is one of the user's computers running T3 Code. T3 calls it an env
 
    Done when both tools are present.
 
-2. **Check for an existing status page.** Read `$T3CODE_PROJECT_ROOT/.home-thread.json`.
+2. **Check for an existing status page.** Read `<project folder>/.home-thread.json`.
    - No file: continue to step 3.
    - The file exists and `get_artifact` on its `page.slug` succeeds: this project already has a status page. Report `page.url`. In one message, ask whether to make this thread the home thread (only when `home.threadId` differs from `$T3CODE_THREAD_ID`) and whether to pin this thread and rename it to `🏠 <project name>`, where the project name is the file's `project`. On a yes to the first, set `home` in the locator file to this machine and this thread. Pin and rename apply only when this thread is the home thread after that answer. Then go to step 7.
    - The file exists but `get_artifact` answers that the page is not found: tell the user the page is gone, and continue to step 3 as a fresh setup.
@@ -25,7 +25,7 @@ A **machine** is one of the user's computers running T3 Code. T3 calls it an env
    Done when you know which of the four cases applies.
 
 3. **Find the project on each machine.** `t3_environment_links` returns this machine's `environmentId` at the top level and the other machines in `links`, each with a `label` (its hostname) and a `status`.
-   - This machine: `t3_project_list` with its `environmentId`, paging with `cursor` until `nextCursor` is absent. The project is the one whose `workspaceRoot` equals `$T3CODE_PROJECT_ROOT`. Its `title` is the project name used in every later step.
+   - This machine: `t3_project_list` with its `environmentId`, paging with `cursor` until `nextCursor` is absent. The project is the one whose `workspaceRoot` equals `<project folder>`. Its `title` is the project name used in every later step.
    - Each other machine with `status: "reachable"`: `t3_project_list` with that `environmentId`, paged the same way. Propose the project whose `repositoryIdentity.canonicalKey` matches this project's, else the one whose `title` matches.
    - A machine that is not reachable, does not answer, or has no matching project gets no `projectId`.
 
@@ -40,14 +40,14 @@ A **machine** is one of the user's computers running T3 Code. T3 calls it an env
 
 5. **Publish the status page.**
    - `publish_files` with no `slug`, `files: [{ as: "index.html", path: "<skill base directory>/assets/status-page.html" }]`, `title: "Status page: <project name>"`, and `icon: "list"`. `<skill base directory>` is the folder Claude Code names when it loads this skill. Keep the `slug` and `url` from the result.
-   - If `publish_files` refuses the path because it is outside the project folder, copy the template to `$T3CODE_PROJECT_ROOT/.home-thread-page-<current unix time>.html`, publish from there, then remove the copy with `rm -f` and confirm with `ls` that it is gone. If a file with that name already exists, do not copy over it; tell the user and stop.
+   - If `publish_files` refuses the path because it is outside the project folder, copy the template to `<project folder>/.home-thread-page-<current unix time>.html`, publish from there, then remove the copy with `rm -f` and confirm with `ls` that it is gone. If a file with that name already exists, do not copy over it; tell the user and stop.
    - `read_declaration` with the `slug` for its `version`, then `declare_capabilities` with the `slug`, `base_version: <that version>`, and `capabilities: { db: {} }`.
 
    Done when `declare_capabilities` succeeds and any template copy made in this step is gone.
 
 6. **Write the locator file and check the page.**
-   - Write `$T3CODE_PROJECT_ROOT/.home-thread.json` in the shape under "Locator file" below. `home` is this machine and `$T3CODE_THREAD_ID`. `machines` lists every machine, this one included, with the `projectId` the user confirmed, and leaves `projectId` out for a machine with none. `pinnedAndRenamed` is the user's answer from step 4.
-   - Keep the file out of git without changing any `.gitignore`. Get the exclude file's path with `git -C "$T3CODE_PROJECT_ROOT" rev-parse --path-format=absolute --git-path info/exclude` (this also resolves correctly in a git worktree), and append the line `.home-thread.json` unless the file already has it.
+   - Write `<project folder>/.home-thread.json` in the shape under "Locator file" below. `home` is this machine and `$T3CODE_THREAD_ID`. `machines` lists every machine, this one included, with the `projectId` the user confirmed, and leaves `projectId` out for a machine with none. `pinnedAndRenamed` is the user's answer from step 4.
+   - Keep the file out of git without changing any `.gitignore`. Get the exclude file's path with `git -C "<project folder>" rev-parse --path-format=absolute --git-path info/exclude` (this also resolves correctly in a git worktree), and append the line `.home-thread.json` unless the file already has it.
    - `get_artifact` on the `slug` and confirm it returns the page `url`. If a browser tool is available, open the URL and confirm the page reads "No snapshot yet. Run /home-thread-update in the home thread."
 
    Done when the locator file parses as JSON, the exclude file contains `.home-thread.json` exactly once, and `get_artifact` returns the URL.

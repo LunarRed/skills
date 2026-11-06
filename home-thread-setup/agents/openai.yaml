@@ -1,6 +1,0 @@
-interface:
-  display_name: "Home Thread Setup"
-  short_description: "Create this project's status page and make this thread its home thread"
-  default_prompt: "Use $home-thread-setup to set up a home thread and status page for this project."
-policy:
-  allow_implicit_invocation: true
