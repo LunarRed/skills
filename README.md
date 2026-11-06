@@ -36,7 +36,7 @@ The same workflow as `have-opus-do-it`, with OpenAI's newest Sol model as the wo
 
 ### [`keep-warm`](./keep-warm)
 
-Keeps a T3 Code thread's prompt cache warm while I'm away by scheduling a minimal keepalive ping into that thread. By default it stops itself four hours after I go quiet: every ping that finds a new message from me pushes the stop time out. If I ask for a hard stop ("until 6pm", "for exactly two hours"), it ends at that time no matter what.
+Keeps a T3 Code thread's prompt cache warm while I'm away by scheduling a short keepalive ping into that thread. Pings never use tools. A separate check runs every four hours, keeps going if I sent a message since the last check, and otherwise stops everything, so keep-warm ends four to eight hours after I go quiet. If I ask for a hard stop ("until 6pm", "for exactly two hours"), it ends at that time no matter what.
 
 - Codex invocation, `$keep-warm`
 - Claude Code invocation, `/keep-warm`
@@ -113,6 +113,14 @@ Keep messaging-app formatting out of the register unless it came from a direct i
 Edit [`have-opus-do-it/SKILL.md`](./have-opus-do-it/SKILL.md) or [`have-sol-do-it/SKILL.md`](./have-sol-do-it/SKILL.md) to change the dispatch rules or how much rework the session model may apply directly during review. The "Choose the worker" section is where each file names its model family and carries that family's quirks. The rest of the two files is meant to stay identical, so a change to the shared workflow goes in both.
 
 Both skills are model-invocable, so I can ask for them in a plain sentence. Their descriptions tell the agent to use them only when I name Opus or Sol and never to infer them from the task, because they spawn paid subagents. Keep that guard in the description if you edit it.
+
+## Customize `keep-warm`
+
+Edit [`keep-warm/SKILL.md`](./keep-warm/SKILL.md) to change the default intervals, the window, or the prompts T3 posts into the thread. Every ping and check prompt shows in the thread as a message from me, so keep them short and tool-free where possible.
+
+The Codex interval follows OpenAI's documented 30-minute minimum cache lifetime. OpenAI's Codex lead said in October 2026 that signed-in Codex keeps its cache indefinitely, but local logs still showed gpt-6.1-sol losing it after 41 to 52 idle minutes, so the interval stays until that changes.
+
+Pings that come due during a long turn queue behind it and run back to back afterward. Changing the model, tools, or system prompt, or compacting the thread, invalidates the cache whatever keep-warm does.
 
 ## Customize `wait-what`
 
