@@ -36,7 +36,7 @@ The same workflow as `have-opus-do-it`, with OpenAI's newest Sol model as the wo
 
 ### [`home-thread-setup`](./home-thread-setup)
 
-Creates a private status page for a project and records its home thread, the T3 Code thread running Claude where I keep track of the project. The status page lists the project's tasks and what each thread working on them is doing or waiting on. Setup can also pin and rename the home thread.
+Creates a private status page for a project and records its home thread, the T3 Code thread running Claude where I keep track of the project. The status page lists the project's tasks and what each thread working on them is doing or waiting on. Setup can also pin and rename the home thread, and it ends with a first refresh so the page opens with data.
 
 - Claude Code invocation, `/home-thread-setup`
 - Automatic invocation, ask the agent to set up a home thread or create a status page for this project
