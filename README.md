@@ -41,7 +41,7 @@ Creates a private status page for a project and records its home thread, the T3 
 - Claude Code invocation, `/home-thread-setup`
 - Automatic invocation, ask the agent to set up a home thread or create a status page for this project
 
-It runs only in a Claude thread in T3 Code that has the claude-artifacts tools. Both skills stop with a plain message in any other thread.
+It runs only in a Claude thread in T3 Code that has Claude Code's built-in Artifact tools. Both skills stop with a plain message in any other thread.
 
 ### [`home-thread-update`](./home-thread-update)
 

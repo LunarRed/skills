@@ -13,17 +13,17 @@ Reads every thread of this project on every machine, decides each thread's **pha
 - **machine**: one of the user's computers running T3 Code, identified by its `environmentId`.
 - **locator file**: `.home-thread.json` in the project folder, written by `/home-thread-setup`.
 
-The only thing this skill writes is `status/current`. The page stays as published, nothing gets scheduled, and the `notes` collection (the user's own task notes) is left alone.
+The only page data this skill writes is the snapshot at `status/current`. The page stays as published, nothing gets scheduled, and the `notes` collection (the user's own task notes) is left alone.
 
 ## Steps
 
-1. **Check this is the home thread.** If the claude-artifacts tool `db_write` or the T3 Code tool `t3_thread_list` is missing, reply in one line that this thread lacks those tools so update cannot run here, and stop. Then read `<project folder>/.home-thread.json`, where `<project folder>` is the project's `workspaceRoot` from `t3_project_read`, using the `projectId` that `t3_thread_read` reports for `$T3CODE_THREAD_ID`.
+1. **Check this is the home thread.** If Claude Code's `ArtifactData` tool or the T3 Code tool `t3_thread_list` is missing (a tool listed as deferred counts; load it with ToolSearch), reply in one line that this thread lacks those tools so update cannot run here, and stop. Then read `<project folder>/.home-thread.json`, where `<project folder>` is the project's `workspaceRoot` from `t3_project_read`, using the `projectId` that `t3_thread_read` reports for `$T3CODE_THREAD_ID`.
    - Missing: reply "This project has no status page yet. Run /home-thread-setup in the thread you want as the home thread." and stop.
    - `home.threadId` differs from `$T3CODE_THREAD_ID`: reply "This is not the home thread for <project>. Run /home-thread-update there." and stop.
 
    Done when the locator file is loaded and its `home.threadId` is this thread.
 
-2. **Load the previous snapshot.** `db_get` with `slug: <page.slug>` and `path: "status/current"`. When `exists` is true, keep its data and its `version`.
+2. **Load the previous snapshot.** `ArtifactData` with `action: "get"`, `url: <page.url>`, `collection: "status"`, and `doc_id: "current"`. When it returns the document, keep its data and its `version`.
 
    Done when you know whether a previous snapshot exists, and hold its `version` if it does.
 
@@ -59,7 +59,7 @@ The only thing this skill writes is `status/current`. The page stays as publishe
 
    Done when every `taskKey` in use has a row in `tasks`.
 
-7. **Write the snapshot.** Build the document in the shape below, with `refreshedAt` set to now. Send one `db_write` with the `slug` and `ops: [{ op: "set", path: "status/current", data: <snapshot> }]`, adding `ifVersion: <version from step 2>` when a previous snapshot existed. If the write is rejected for a version mismatch, report that to the user and stop. Then `db_get` `status/current` again.
+7. **Write the snapshot.** Build the document in the shape below, with `refreshedAt` set to now. Save it as a JSON file in your scratchpad directory, then send one `ArtifactData` with `action: "set"`, `url: <page.url>`, `collection: "status"`, `doc_id: "current"`, and `file_path` set to that file, adding `if_version: <version from step 2>` when a previous snapshot existed. If the write is rejected for a version mismatch, report that to the user and stop. Then `get` `status/current` again.
 
    Done when the stored `refreshedAt` equals the one you wrote.
 
