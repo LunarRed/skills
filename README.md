@@ -62,6 +62,16 @@ Keeps a T3 Code thread's prompt cache warm while I'm away by scheduling a short 
 
 It runs only inside T3 Code, because it uses T3's scheduled tasks. The ping interval comes from measured cache lifetimes: 50 minutes when Claude Code is writing the 1-hour cache, and 25 minutes for Codex on GPT-5.5 or later. T3 has to stay running and the machine awake.
 
+### [`slop-check`](./slop-check)
+
+Runs my three-question check on a finished change before its commit message is proposed: does it add unnecessary, extraneous, or duplicative code, tests, or documentation; can we foresee it causing regressions; and is its documentation a log of what was done instead of a concise summary of the outcome. A checker on the other model family from the author reads only the change and its plan and writes one findings file. The session model then checks each finding against the code, fixes what holds, reruns the tests, and reports one answer per question. It is not a code review; correctness bugs are `/code-review`'s job.
+
+- Codex invocation, `$slop-check`
+- Claude Code invocation, `/slop-check`
+- Automatic invocation, ask for a slop check. `have-opus-do-it` and `have-sol-do-it` also run it before handing back a code change.
+
+The checker is Sol when Opus wrote the code and Opus when Sol did. When the other family is out of reach, as Sol is from plain Claude Code, the skill skips the check and says so, and a calling skill still hands back its work.
+
 ### [`wait-what`](./wait-what)
 
 Stops an agent that has lost me and makes it re-pitch, with a little context, in ASD-STE100 Simplified Technical English, using the project's own vocabulary.
@@ -117,6 +127,8 @@ skills/
 │   ├── SKILL.md
 │   └── agents/
 │       └── openai.yaml
+├── slop-check/
+│   └── SKILL.md
 ├── wait-what/
 │   ├── SKILL.md
 │   └── agents/

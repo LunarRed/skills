@@ -41,6 +41,6 @@ The task is done when every step's deliverable has passed your review.
 
 ## Verify and hand back
 
-Check the deliverables against reality wherever reality is cheap to check: re-run the command, open the file that was supposedly written, spot-check a claim against the source it cites. For a code change, run the relevant checks and tests. Deterministic checks cost no model tokens, so run them directly. When one comes back wrong, send the evidence to a Sol subagent for the fix, then re-check.
+Check the deliverables against reality wherever reality is cheap to check: re-run the command, open the file that was supposedly written, spot-check a claim against the source it cites. For a code change, run the relevant checks and tests, and once they pass, run the `slop-check` skill on it. Deterministic checks cost no model tokens, so run them directly. When one comes back wrong, send the evidence to a Sol subagent for the fix, then re-check.
 
 Hand back to the user with what was produced, where it lives, and the verbatim results of any checks you ran. For a code change, leave the diff uncommitted. The final irreversible action is the user's decision.
