@@ -6,7 +6,7 @@ disable-model-invocation: false
 
 # Home Thread Update
 
-Reads every thread of this project on every machine, decides each thread's **phase**, groups the threads into **tasks**, and writes the result as one **snapshot**: a single database document at `status/current` on the project's **status page**. The page renders itself from the snapshot. This runs only in the **home thread**, and only when the user asks.
+Reads every unsettled thread of this project on every machine, decides each thread's **phase**, groups the threads into **tasks**, and writes the result as one **snapshot**: a single database document at `status/current` on the project's **status page**. The page renders itself from the snapshot. This runs only in the **home thread**, and only when the user asks.
 
 - **task**: one Asana DEV ticket, like `DEV-5086`. Tasks group threads. **Unassigned** (key `unassigned`) holds threads whose title names no ticket, or two or more.
 - **phase**: one of seven keys, most urgent first: `waiting`, `blocked`, `unknown`, `coding`, `testing`, `monitoring`, `done`. The page shows them as "Waiting on you", "Blocked", "Unknown", "Coding", "Testing", "Monitoring", "Done".
@@ -27,7 +27,7 @@ The only page data this skill writes is the snapshot at `status/current`. The pa
 
    Done when you know whether a previous snapshot exists, and hold its `version` if it does.
 
-3. **List each machine's threads.** For each entry in the locator file's `machines`, call `t3_thread_list` with its `projectId` and `environmentId`, `includeSubagents: false`, and `limit: 100`, paging with `cursor` until `nextCursor` is absent. Drop the home thread. Give the machine a result:
+3. **List each machine's threads.** For each entry in the locator file's `machines`, call `t3_thread_list` with its `projectId` and `environmentId`, `includeSubagents: false`, `settled: false`, and `limit: 100`, paging with `cursor` until `nextCursor` is absent. Drop the home thread. A settled thread is one the user has marked finished in T3 Code, so it never appears on the page, and a previous row for it is dropped too. Give the machine a result:
    - `ok`: every page listed, and every read in step 4 succeeds.
    - `partial`: listing stopped after some pages, or some reads in step 4 fail. Use the threads you got, and carry forward as `unknown` any previous row for this machine missing from the partial list.
    - `unreachable`: the first call failed. Carry forward every previous row for this machine.
@@ -39,7 +39,7 @@ The only page data this skill writes is the snapshot at `status/current`. The pa
 
 4. **Decide each thread's phase.** Reading threads is the expensive part, so re-read a thread only when it has no previous row, its `updatedAt` differs from the previous row's `threadUpdatedAt`, or the previous row has `readFailed: true`. Every other thread keeps its previous row, `readAt` included, with `title`, `model`, and `threadUpdatedAt` refreshed from the list. For each thread to re-read:
    - One `t3_thread_read` with `afterPosition` set to the list's `itemCount` minus 40 (at least 0), `limit: 12`, and `maxCharsPerItem: 1200`. It returns the thread record (`pendingRequestCount`, `archived`), `recentRuns`, and the messages in that window, oldest first. While a result's `hasMore` is true, read again with `afterPosition` set to that result's `nextPosition`, until `hasMore` is false. Judge from the newest messages seen. Positions count every timeline item, tool calls included, so a window of 40 usually holds 3 to 10 messages. If these reads hold fewer than 3 messages in total and the first `afterPosition` was above 0, read again the same way from `itemCount` minus 120.
-   - A record with `archived: true` is dropped from the snapshot.
+   - A record with `archived: true` or `settled: true` is dropped from the snapshot.
    - Apply the phase checklist below. When `pendingRequestCount` is above 0, `t3_pending_request` with `action: "list"` shows the waiting questions; any pending request it leaves out is an approval.
    - Write `now` (one short sentence: what the thread is doing), `needs` (one short sentence: what it needs next, or "Nothing."), and `reason` (a few words: why this phase, e.g. "1 pending approval"). Set `readAt` to now and `readFailed: false`.
    - If a read fails, the row gets `phase: "unknown"`, `basis: "recorded"`, `readFailed: true`, and `reason: "read failed"`, keeps its previous `now` and `needs`, and the machine becomes `partial`.
@@ -76,7 +76,7 @@ Judged from the last few messages, basis `judged`. Check in this order; the firs
 2. The latest assistant message ends by asking the user a question that is required to continue, and no later user message answers it: `waiting`.
 3. The thread says it is stopped on something outside the user's control, such as an answer from another person, a system that is down, or a dependency not yet merged: `blocked`.
 4. `status` is `failed` or `interrupted` with no later run in `recentRuns`: `blocked`, reason "run failed" or "run interrupted".
-5. The thread says a PR is merged, the task is shipped, or the work is complete with nothing further, or the thread is `settled`: `done`.
+5. The thread says a PR is merged, the task is shipped, or the work is complete with nothing further: `done`.
 6. The thread is watching a deploy, a job, logs, or a rollout: `monitoring`.
 7. The thread is running tests, QA, an evaluation, or a review of results: `testing`.
 8. Anything else, including planning and reviewing diffs: `coding`.
@@ -105,7 +105,7 @@ Store exactly these fields. The page works out each task's phase, the counts, an
       "done": "Fix implemented; BluePeak QA complete.", "next": "Approve the deploy order.", "blocking": "Your approval of the deploy order." },
     { "key": "unassigned", "shortTitle": "Unassigned", "fullTitle": "Threads with no ticket in their title", "done": "", "next": "", "blocking": "" }
   ],
-  // one per thread except the home thread; key is "<environmentId>/<threadId>", threadId exactly as T3 gives it
+  // one per thread except the home thread and settled threads; key is "<environmentId>/<threadId>", threadId exactly as T3 gives it
   "threads": [
     { "key": "<environmentId>/<threadId>", "environmentId": "...", "threadId": "mcp:0ef0228b-...", "taskKey": "DEV-5086",
       "title": "⭐ DEV-5086: Third-party deal emails", "model": "claude-fable-5-1",

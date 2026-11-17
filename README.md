@@ -45,7 +45,7 @@ It runs only in a Claude thread in T3 Code that has Claude Code's built-in Artif
 
 ### [`home-thread-update`](./home-thread-update)
 
-Refreshes the status page by hand. In the home thread, it reads every thread of the project on every machine, sorts each into a phase (waiting on me, blocked, coding, testing, monitoring, done, or unknown when a machine did not answer), groups threads by ticket, and writes one snapshot that the page renders. It re-reads only threads that changed or could not be read last time, and keeps the rest. It never republishes the page and never runs on a schedule.
+Refreshes the status page by hand. In the home thread, it reads every thread of the project on every machine, skipping threads I've settled, sorts each into a phase (waiting on me, blocked, coding, testing, monitoring, done, or unknown when a machine did not answer), groups threads by ticket, and writes one snapshot that the page renders. It re-reads only threads that changed or could not be read last time, and keeps the rest. It never republishes the page and never runs on a schedule.
 
 - Claude Code invocation, `/home-thread-update`
 - Automatic invocation, ask the agent to refresh or update this project's status page
