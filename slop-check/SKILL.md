@@ -1,11 +1,11 @@
 ---
 name: slop-check
-description: Slop check on a finished change before its commit message is proposed. A checker on the other model family asks the user's three questions (unnecessary or duplicated code, tests or docs; foreseeable regressions; documentation that logs the work instead of stating the outcome), then you judge each finding and fix what holds. Use when the user asks for a slop check, and when have-opus-do-it or have-sol-do-it hands back a code change. Correctness bugs belong to code-review, and in-place reuse cleanup to simplify.
+description: Slop check on a finished change before its commit message is proposed. A checker on the other model family asks the user's four questions (unnecessary or duplicated code, tests or docs; foreseeable regressions; fixes overfitted to the examples that prompted them; documentation that logs the work instead of stating the outcome), then you judge each finding and fix what holds. Use when the user asks for a slop check, and when have-opus-do-it or have-sol-do-it hands back a code change. Correctness bugs belong to code-review, and in-place reuse cleanup to simplify.
 ---
 
 # Slop Check
 
-Slop is output written because it was easy to generate, not because the change needed it. A slop check asks whether each piece of a change should exist, whether the change will break something later, and whether its documentation says only what is needed. It is not a code review: correctness is a separate tool the user runs. The check runs after a change is built and its tests pass, and before its commit message is proposed. The three questions in the brief below, in their exact wording, are the checker's whole brief, and every report answers exactly those three.
+Slop is output written because it was easy to generate, not because the change needed it. A slop check asks whether each piece of a change should exist, whether the change will break something later, whether it solves the general problem rather than only the examples that prompted it, and whether its documentation says only what is needed. It is not a code review: correctness is a separate tool the user runs. The check runs after a change is built and its tests pass, and before its commit message is proposed. The four questions in the brief below, in their exact wording, are the checker's whole brief, and every report answers exactly those four, plus any questions the user adds (step 3).
 
 ## 1. Pick the change
 
@@ -31,14 +31,17 @@ The checker gets the change and the plan, and nothing about how the work went: n
 
 Put the findings file in the project's git-ignored working folder (often `docs/working/`), beside the plan when the plan lives there, named `slop-check.md`, with `-2`, `-3` for later runs. Confirm with `git check-ignore` that git ignores it. If the project has no ignored working folder, ask the user where it goes.
 
+If the user's request or the conversation adds slop-check questions, add them to the brief in the user's wording after the four standard ones, numbered from 5, and change "four" in the brief to the new count. Each added question gets its own section in the findings file and its own part in your report.
+
 Send this brief, filling in the angle brackets:
 
 ```text
-Run a slop check on a code change. Slop is output written because it was easy to generate, not because the change needed it. Answer exactly these three questions about the change:
+Run a slop check on a code change. Slop is output written because it was easy to generate, not because the change needed it. Answer exactly these four questions about the change:
 
 1. Does this write any unnecessary, extraneous, or duplicative code, tests, or documentation?
 2. Can we foresee this causing regressions?
-3. Is the documentation a needlessly verbose wall of text logging what was done instead of a concise, strictly-needed summary of the final outcome?
+3. Does this solve the general problem, or is it overfitted to the particular examples that prompted or tested it?
+4. Is the documentation a needlessly verbose wall of text logging what was done instead of a concise, strictly-needed summary of the final outcome?
 
 The change is in <absolute checkout path>. See it with <`git diff HEAD` plus the untracked files in `git status --short` | `git show <commit>`>.
 It implements <plan file path, ticket text, or the agreed requirements>. Every line of the change should trace to this.
@@ -59,6 +62,13 @@ What to look for under question 2:
 For each foreseeable regression, name the scenario and the test or run that would show it. Label a risk hypothetical when you constructed the scenario rather than saw it happen; measured results outrank constructed scenarios.
 
 What to look for under question 3:
+- Special cases keyed to the input that prompted the change, such as a specific id, name, string, date or file, instead of a fix to the rule that failed.
+- A guard on the symptom, such as catching, clamping or skipping the bad value, while the cause upstream stays.
+- Constants, thresholds or prompts tuned until the known examples pass.
+- Tests that use only the reported example.
+For each overfit, name a different input of the same kind that would still fail.
+
+What to look for under question 4:
 - Text that logs what was done (steps, runs, agents, retries) instead of stating the final outcome, its reason and its consequence.
 - Decision-log entries far longer than the file's median entry. Measure the median and compare.
 - Comments or docstrings that restate the code or narrate its history.
@@ -66,8 +76,8 @@ What to look for under question 3:
 Write the findings file like this:
 - First line: the model you are running.
 - Then a one-sentence verdict.
-- Then three sections, headed by the three questions in order. Each finding gives the file and line in the new version of the file, what is unnecessary or risky, and the smallest fix, in a few plain sentences. A section with no findings says so in one sentence.
-The file holds findings only: everything in it answers one of the three questions. Write plain English in full sentences, with no em dashes.
+- Then four sections, headed by the four questions in order. Each finding gives the file and line in the new version of the file, what is unnecessary or risky, and the smallest fix, in a few plain sentences. A section with no findings says so in one sentence.
+The file holds findings only: everything in it answers one of the four questions. Write plain English in full sentences, with no em dashes.
 
 Reply with the findings file's path and the number of findings under each question.
 ```

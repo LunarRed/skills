@@ -64,7 +64,7 @@ It runs only inside T3 Code, because it uses T3's scheduled tasks. The ping inte
 
 ### [`slop-check`](./slop-check)
 
-Runs my three-question check on a finished change before its commit message is proposed: does it add unnecessary, extraneous, or duplicative code, tests, or documentation; can we foresee it causing regressions; and is its documentation a log of what was done instead of a concise summary of the outcome. A checker on the other model family from the author reads only the change and its plan and writes one findings file. The session model then checks each finding against the code, fixes what holds, reruns the tests, and reports one answer per question. It is not a code review; correctness bugs are `/code-review`'s job.
+Runs my four-question check on a finished change before its commit message is proposed: does it add unnecessary, extraneous, or duplicative code, tests, or documentation; can we foresee it causing regressions; does it solve the general problem or only the examples that prompted it; and is its documentation a log of what was done instead of a concise summary of the outcome. A checker on the other model family from the author reads only the change and its plan and writes one findings file. The session model then checks each finding against the code, fixes what holds, reruns the tests, and reports one answer per question. A question I add in my request, or earlier in the thread, is asked after the standard four. It is not a code review; correctness bugs are `/code-review`'s job.
 
 - Codex invocation, `$slop-check`
 - Claude Code invocation, `/slop-check`
